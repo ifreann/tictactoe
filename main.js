@@ -1,26 +1,74 @@
-const container = document.querySelector('.container');
-const spaces = Array.from(container.children);
-let player = Math.floor(Math.random() * 2) + 1;
+initialize();
 
-assignEvents();
+function initialize() {
 
-function resetBoard() {
+	const container = document.querySelector('.container');
+	const spaces = Array.from(container.children);
+	spaces.shift();
+	let player = Math.floor(Math.random() * 2) + 1;
+
+	assignEvents(spaces, player, container);
+
+	addResizeListener();
+
+}
+
+function addResizeListener() {
+
+	const grid = document.querySelector('.grid');
+	
+	const margin = 100;
+	document.body.style.margin = margin / 2 + "px";
+
+	resize();
+
+	window.onresize = () => resize();
+
+	function resize() {
+		const windowWidth = window.innerWidth;
+		const windowHeight = window.innerHeight;
+		const baseline = windowWidth < windowHeight ? windowWidth - margin : windowHeight - margin;
+		document.body.style.width = baseline + "px";
+		document.body.style.height = baseline + "px";
+		grid.style.width = baseline + "px";
+		grid.style.height = baseline + "px";
+
+		const hOffset = (windowHeight - getStyle(document.body, "height")) / 2;
+		const wOffset = (windowWidth - getStyle(document.body, "width")) / 2;
+		document.body.style.marginTop = hOffset + "px";
+		document.body.style.marginLeft = wOffset + "px";
+	}
+
+}
+
+// shorthand function
+function getStyle(component, property) {
+	return parseFloat(window.getComputedStyle(component).getPropertyValue(property).split('px')[0]);
+}
+
+function resetBoard(spaces, player) {
+
+	const container = document.querySelector('.container');
 
 	const modal = document.querySelector('.modal');
 	modal.classList.toggle('invisible');
+	container.classList.toggle('blur');
 
 	spaces.forEach(space => {
 		space.classList = 'space';
-		assignEvents();
+		assignEvents(spaces, player);
 	});
 
 }
 
-function checkWinCondition() {
+function checkWinCondition(spaces, player) {
+
+	const container = document.querySelector('.container');
 	
 	if (checkVerticals() || checkHorizontals() || checkDiagonals()) {
 		const modal = document.querySelector('.modal');
 		modal.classList.toggle('invisible');
+		container.classList.toggle('blur');
 
 		const winMessage = document.querySelector('h1');
 		if (player === 1) {
@@ -31,18 +79,19 @@ function checkWinCondition() {
 		}
 
 		modal.onclick = function() {
-			resetBoard();
+			resetBoard(spaces, player);
 		}
 	}
 	else if (allSpacesAreUsed()) {
 		const modal = document.querySelector('.modal');
 		modal.classList.toggle('invisible');
+		container.classList.toggle('blur');
 		
 		const winMessage = document.querySelector('h1');
 		winMessage.innerText = "It's a draw!";
 
 		modal.onclick = function() {
-			resetBoard();
+			resetBoard(spaces, player);
 		}
 	}
 
@@ -106,7 +155,9 @@ function checkWinCondition() {
 
 }
 
-function assignEvents() {
+function assignEvents(spaces, player) {
+
+	const container = document.querySelector('.container');
 
 	spaces.forEach(space => {
 
@@ -143,7 +194,7 @@ function assignEvents() {
 			e.target.onclick = '';
 			player = player === 1 ? 2 : 1;
 
-			checkWinCondition();
+			checkWinCondition(spaces, player);
 		}
 
 	});
