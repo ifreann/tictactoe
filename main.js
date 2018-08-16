@@ -22,7 +22,9 @@ function addResizeListener() {
 
 	resize();
 
-	window.onresize = () => resize();
+	window.onresize = function() {
+		if (window.innerWidth > 300 && window.innerHeight > 300) resize();		
+	}
 
 	function resize() {
 		const windowWidth = window.innerWidth;
